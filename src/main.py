@@ -53,6 +53,25 @@ df = df[["text", "label"]]
 print(df.head())
 
 # =========================
+# DATASET DISTRIBUTION
+# =========================
+
+plt.figure(figsize=(6,4))
+
+sns.countplot(
+    x='label',
+    data=df
+)
+
+plt.xticks([0,1], ['Fake', 'Real'])
+
+plt.title("Fake vs Real News Distribution")
+
+plt.savefig("../outputs/news_distribution.png")
+
+plt.show()
+
+# =========================
 # TEXT CLEANING FUNCTION
 # =========================
 
@@ -85,6 +104,22 @@ def clean_text(text):
 # =========================
 
 df["text"] = df["text"].apply(clean_text)
+
+# =========================
+# WORD COUNT ANALYSIS
+# =========================
+
+df["word_count"] = df["text"].apply(
+    lambda x: len(x.split())
+)
+
+fake_avg = df[df["label"] == 0]["word_count"].mean()
+
+real_avg = df[df["label"] == 1]["word_count"].mean()
+
+print("\nAverage Fake News Word Count:", round(fake_avg, 2))
+
+print("Average Real News Word Count:", round(real_avg, 2))
 
 # =========================
 # FEATURES AND TARGET
