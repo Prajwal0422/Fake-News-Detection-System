@@ -5,6 +5,9 @@ import seaborn as sns
 import re
 import string
 
+import nltk
+from nltk.corpus import stopwords
+
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
@@ -17,6 +20,9 @@ from sklearn.metrics import (
 # =========================
 # LOAD DATASETS
 # =========================
+nltk.download('stopwords')
+
+stop_words = set(stopwords.words('english'))
 
 fake_df = pd.read_csv("../data/Fake.csv")
 true_df = pd.read_csv("../data/True.csv")
@@ -65,6 +71,12 @@ def clean_text(text):
     text = re.sub(r'\n', '', text)
 
     text = re.sub(r'\w*\d\w*', '', text)
+
+    words = text.split()
+
+    words = [word for word in words if word not in stop_words]
+
+    text = " ".join(words)
 
     return text
 
@@ -168,7 +180,11 @@ news_vector = vectorizer.transform([news_clean])
 
 prediction = model.predict(news_vector)
 
+confidence = model.predict_proba(news_vector)
+
+confidence_score = max(confidence[0]) * 100
+
 if prediction[0] == 0:
-    print("\nPrediction: FAKE NEWS")
+    print(f"\nPrediction: FAKE NEWS ({confidence_score:.2f}% confidence)")
 else:
-    print("\nPrediction: REAL NEWS")
+    print(f"\nPrediction: REAL NEWS ({confidence_score:.2f}% confidence)")
